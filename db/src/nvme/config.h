@@ -14,7 +14,6 @@ typedef struct
 
         bool dry;
         char *data_file;
-        struct nvme_dev *dev;
 
         uint8_t flags;
         uint16_t rsvd;
@@ -152,10 +151,12 @@ typedef enum _NMC_STATUS_CODES
 #define IO_NVM_NMC_FLUSH     0xC2 // close mapping table
 #define IO_NVM_NMC_INFERENCE 0xC3 // inference the specified file
 #define IO_NVM_NMC_WRITE     0xC9 // write packet (distribute to all FCs)
+#define IO_DB_WRITE        0xC4 // DB write page
+#define IO_DB_READ         0xC5 // DB read page
 
 /* -------------------------------------------------------------------------- */
 /*                              public interfaces                             */
 /* -------------------------------------------------------------------------- */
 
-
+#define PAGE_SIZE 16384
 #endif /* __NMC_HOST_PLUGIN_NVME_NMC_H__ */

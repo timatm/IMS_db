@@ -8,6 +8,10 @@
 
 int nvme_write(nmc_config_t config,int fd){
     int err;
+    config.OPCODE    = IO_DB_WRITE;
+    config.PSDT      = 0; /* use PRP */
+    config.meta_addr = (uintptr_t)NULL;
+    config.PRP1      = (uintptr_t)config.data;
     if (config.dry)
     {
         printf("dev          : ");
@@ -29,17 +33,65 @@ int nvme_write(nmc_config_t config,int fd){
         pr("cdw14        : 0x%08x", config.cdw14);
         pr("cdw15        : 0x%08x", config.cdw15);
     }
-    err = nvme_io_passthru(dev_fd(config.dev), config.OPCODE, config.flags, config.rsvd, config.NSID,
+    err = nvme_io_passthru(fd, config.OPCODE, config.flags, config.rsvd, config.NSID,
     config.cdw02, config.cdw03, config.cdw10, config.cdw11, config.cdw12,
     config.cdw13, config.cdw14, config.cdw15, config.data_len, config.data,
     config.metadata_len, config.metadata, config.timeout_ms, &config.result);
 
-    if(err != 0){
-
+    if(err == 0){
+        pr("nvme write success");
     }
     else{
-        
+        pr("nvme write failed");
+        pr("error code: %d", err);
     }
+    return err;
+}
+
+
+int nvme_read(nmc_config_t config,int fd){
+    int err;
+    config.data_len = PAGE_SIZE;
+    config.data     = aligned_alloc(getpagesize(), config.data_len);
+    assert_return(config.data, errno, "failed to allocate data buffer...");
+    config.OPCODE    = IO_DB_READ;
+    config.PSDT      = 0; /* use PRP */
+    config.meta_addr = (uintptr_t)NULL;
+    config.PRP1      = (uintptr_t)config.data;
+    if (config.dry)
+    {
+        printf("dev          : ");
+        print_fd_target(fd);
+        pr("opcode       : 0x%02x", config.OPCODE);
+        pr("nsid         : 0x%02x", config.NSID);
+        pr("cdw2         : 0x%08x", config.cdw02);
+        pr("cdw3         : 0x%08x", config.cdw02);
+        pr("data_addr    : %p", config.data);
+        pr("madata_addr  : %p", config.metadata);
+        pr("data_len     : 0x%08x", config.data_len);
+        pr("mdata_len    : 0x%08x", config.metadata_len);
+        pr("slba         : 0x%08lx", config.slba);
+        pr("nlb          : 0x%08x", config.nlb);
+        pr("cdw10        : 0x%08x", config.cdw10);
+        pr("cdw11        : 0x%08x", config.cdw11);
+        pr("cdw12        : 0x%08x", config.cdw12);
+        pr("cdw13        : 0x%08x", config.cdw13);
+        pr("cdw14        : 0x%08x", config.cdw14);
+        pr("cdw15        : 0x%08x", config.cdw15);
+    }
+    err = nvme_io_passthru(fd, config.OPCODE, config.flags, config.rsvd, config.NSID,
+    config.cdw02, config.cdw03, config.cdw10, config.cdw11, config.cdw12,
+    config.cdw13, config.cdw14, config.cdw15, config.data_len, config.data,
+    config.metadata_len, config.metadata, config.timeout_ms, &config.result);
+
+    if(err == 0){
+        pr("nvme write success");
+    }
+    else{
+        pr("nvme write failed");
+        pr("error code: %d", err);
+    }
+    return err;
 }
 
 
