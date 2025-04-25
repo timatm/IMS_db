@@ -1,6 +1,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <../nvme/nvme_interface.h>
+#include <fcntl.h>
 int main(){
-    
+    printf("nvme_interface_test\n");
+    nmc_config_t config;
+    int err = 0;
+    const char *dev_path = "/dev/nvme0";  // 控制器裝置
+    int fd = open(dev_path, O_RDWR);
+    if (fd < 0) {
+        perror("open nvme device");
+        return 1;
+    }
+    config.NSID = 1; // namespace id
+    config.data_len = 4096; // data length
+    void *data = aligned_alloc(4096, config.data_len);
+    if (!data) {
+        perror("alloc");
+        close(fd);
+        return 1;
+    }
+    memset(data, 0, config.data_len);
+    config.data = data;
+    err = ims_nvme_write(config, fd);
+    if(err == 0){
+        printf("write success\n");
+    }
+    else{
+        printf("write failed\n");
+        printf("error code: %d\n", err);
+    }
+
+    free(data);
+    close(fd);
+    return 0;
 }

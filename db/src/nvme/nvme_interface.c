@@ -1,12 +1,13 @@
 #include "libnvme.h"
-#include "config.h"
-#include <bits/fcntl-linux.h>
+#include <nvme_interface.h>
 #include "debug.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <limits.h>
 
-int nvme_write(nmc_config_t config,int fd){
+
+
+int ims_nvme_write(nmc_config_t config,int fd){
     int err;
     config.OPCODE    = IO_DB_WRITE;
     config.PSDT      = 0; /* use PRP */
@@ -49,7 +50,7 @@ int nvme_write(nmc_config_t config,int fd){
 }
 
 
-int nvme_read(nmc_config_t config,int fd){
+int ims_nvme_read(nmc_config_t config,int fd){
     int err;
     config.data_len = PAGE_SIZE;
     config.data     = aligned_alloc(getpagesize(), config.data_len);
