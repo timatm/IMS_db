@@ -8,6 +8,7 @@
 
 
 int ims_nvme_write(nmc_config_t config,int fd){
+    pr("in ims_nvme_write");
     int err;
     config.OPCODE    = IO_DB_WRITE;
     config.PSDT      = 0; /* use PRP */
@@ -33,6 +34,7 @@ int ims_nvme_write(nmc_config_t config,int fd){
         pr("cdw13        : 0x%08x", config.cdw13);
         pr("cdw14        : 0x%08x", config.cdw14);
         pr("cdw15        : 0x%08x", config.cdw15);
+        return 0;
     }
     err = nvme_io_passthru(fd, config.OPCODE, config.flags, config.rsvd, config.NSID,
     config.cdw02, config.cdw03, config.cdw10, config.cdw11, config.cdw12,
