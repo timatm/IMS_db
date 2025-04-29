@@ -8,12 +8,39 @@
 
 
 int ims_nvme_write(nmc_config_t config,int fd){
-    pr("in ims_nvme_write");
     int err;
     config.OPCODE    = IO_DB_WRITE;
     config.PSDT      = 0; /* use PRP */
-    config.meta_addr = (uintptr_t)NULL;
+    // config.meta_addr = (uintptr_t)NULL;
     config.PRP1      = (uintptr_t)config.data;
+    pr("in ims_nvme_write");
+    pr("==== ims_nvme_write() check config ====");
+    pr("data = %p", config.data);
+    pr("data_len = %u", config.data_len);
+    pr("metadata = %p", config.metadata);
+    pr("metadata_len = %u", config.metadata_len);
+    pr("fd = %d", fd);
+    pr("fd             : %d", fd);
+    pr("OPCODE         : 0x%x", config.OPCODE);
+    pr("flags          : 0x%x", config.flags);
+    pr("rsvd           : 0x%x", config.rsvd);
+    pr("NSID           : 0x%x", config.NSID);
+    pr("cdw02          : 0x%x", config.cdw02);
+    pr("cdw03          : 0x%x", config.cdw03);
+    pr("cdw10          : 0x%x", config.cdw10);
+    pr("cdw11          : 0x%x", config.cdw11);
+    pr("cdw12          : 0x%x", config.cdw12);
+    pr("cdw13          : 0x%x", config.cdw13);
+    pr("cdw14          : 0x%x", config.cdw14);
+    pr("cdw15          : 0x%x", config.cdw15);
+    pr("data_len       : 0x%x", config.data_len);
+    pr("data           : %p", config.data);
+    pr("metadata_len   : 0x%x", config.metadata_len);
+    pr("metadata       : %p", config.metadata);
+    pr("timeout_ms     : 0x%x", config.timeout_ms);
+    pr("&result        : %p", &config.result);
+    pr("===========================");
+
     if (config.dry)
     {
         printf("dev          : ");
@@ -36,11 +63,11 @@ int ims_nvme_write(nmc_config_t config,int fd){
         pr("cdw15        : 0x%08x", config.cdw15);
         return 0;
     }
+    pr("start nvme write");
     err = nvme_io_passthru(fd, config.OPCODE, config.flags, config.rsvd, config.NSID,
     config.cdw02, config.cdw03, config.cdw10, config.cdw11, config.cdw12,
     config.cdw13, config.cdw14, config.cdw15, config.data_len, config.data,
     config.metadata_len, config.metadata, config.timeout_ms, &config.result);
-
     if(err == 0){
         pr("nvme write success");
     }
@@ -97,7 +124,33 @@ int ims_nvme_read(nmc_config_t config,int fd){
     return err;
 }
 
-
+void init_nmc_config(nmc_config_t *config){
+    config->OPCODE = 0;
+    config->argc = 0;
+    config->argv = NULL;
+    config->dry = 0;
+    config->data_file = NULL;
+    config->flags = 0;
+    config->rsvd = 0;
+    config->result = 0;
+    config->timeout_ms = 10000; // default timeout
+    config->data = NULL;
+    config->data_len = 0;
+    config->metadata = NULL;
+    config->metadata_len = 0;
+    config->NSID = 0;
+    config->slba = 0;
+    config->nlb = 0;    
+    config->cdw02 = 0;
+    config->cdw03 = 0;
+    config->cdw10 = 0;
+    config->cdw11 = 0;
+    config->cdw12 = 0;
+    config->cdw13 = 0;
+    config->cdw14 = 0;
+    config->cdw15 = 0;
+    return;
+}
 
 void print_fd_target(int fd) {
     char path[64];

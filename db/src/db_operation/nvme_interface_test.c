@@ -5,17 +5,16 @@
 int main(){
     printf("nvme_interface_test\n");
     nmc_config_t config;
+    init_nmc_config(&config);
     int err = 0;
-    // const char *dev_path = "/dev/nvme0";  // 控制器裝置
-    // int fd = open(dev_path, O_RDWR);
-    int fd = 0;
+    const char *dev_path = "/dev/nvme0n1";
+    int fd = open(dev_path, O_RDWR);
     if (fd < 0) {
         perror("open nvme device");
         return 1;
     }
     config.NSID = 1; // namespace id
     config.data_len = 4096; // data length
-    config.dry = 1;
     void *data = aligned_alloc(4096, config.data_len);
     if (!data) {
         perror("alloc");
@@ -24,6 +23,8 @@ int main(){
     }
     memset(data, 0, config.data_len);
     config.data = data;
+    config.metadata_len = 0;
+    config.metadata =  NULL;
     err = ims_nvme_write(config, fd);
     if(err == 0){
         printf("write success\n");
